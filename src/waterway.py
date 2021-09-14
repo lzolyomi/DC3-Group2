@@ -20,7 +20,6 @@ def waterway_summary(waterway: str, path_to_stuw_order: str, path_to_ft_tables: 
     """
 
     stuw_order = pd.read_csv(path_to_stuw_order)
-    stuw_order.head()
 
     waterway_df = stuw_order.loc[stuw_order['WATERLOOP'] == waterway].iloc[::-1]  #select only those rows belonging to the waterway
     waterway_df.reset_index(inplace=True)
@@ -33,4 +32,4 @@ def waterway_summary(waterway: str, path_to_stuw_order: str, path_to_ft_tables: 
         mean_weir = vak[['Q']].mean()
         df = df.append({'Weir compartment': x, 'Mean discharge': mean_weir[0]}, ignore_index=True)
 
-    return df
+    return print(df)
