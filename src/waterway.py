@@ -19,7 +19,6 @@ def waterway_summary(waterway: str, path_to_stuw_order: str, path_to_ft_tables: 
         output:
         gives all the weir compartments of the waterway together with the mean discharge per weir compartment
     """
-
     stuw_order = pd.read_csv(path_to_stuw_order)
 
     waterway_df = stuw_order.loc[stuw_order['WATERLOOP'] == waterway].iloc[::-1]  # select only those rows belonging to the waterway
@@ -44,7 +43,7 @@ def waterway_complete(waterway: str, path_to_stuw_order: str, path_to_ft_tables:
         compartment = pd.read_csv(path_to_ft_tables + f"{dep}_feature_table.csv")  # whole feature table
         df_list.append(pd.DataFrame({"Time": compartment["TIME"], "Weir compartment": compartment["STUWVAK"], "Discharge(Q)": compartment["Q"], "Diff(Verschil)": compartment["VERSCHIL"]}))
     df = pd.concat(df_list)
-
+    df["Time"] = pd.to_datetime(df["Time"])
     return df
 
 
