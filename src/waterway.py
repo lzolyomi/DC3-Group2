@@ -34,3 +34,19 @@ def waterway_summary(waterway: str, path_to_stuw_order: str, path_to_ft_tables: 
         df = df.append({'Weir compartment': x, 'Mean discharge': mean_weir[0]}, ignore_index=True)
 
     return df
+
+def waterway_complete(waterway:str, path_to_stuw_order: str, path_to_ft_tables:str):
+    stuw_order = pd.read_csv(path_to_stuw_order)
+
+    waterway_df = stuw_order.loc[stuw_order["WATERLOOP"] == waterway].iloc[::-1] #inverting dataframe
+    waterway_df.reset_index(inplace=True)
+    waterway_df.drop(['index', 'ORDER'], axis=1)
+    df_list = []
+    for x in waterway_df.iloc[:, 3]: #x is name of weir compartment
+        compartment = pd.read_csv(path_to_ft_tables + f"{x}_feature_table.csv") #whole feature table
+        df_list.append(pd.DataFrame({"Time":compartment["TIME"], "Weir compartment":compartment["STUWVAK"], "Discharge(Q)": compartment["Q"], "Diff(Verschil)":compartment["VERSCHIL"]}))
+    df = pd.concat(df_list)
+    return df
+
+test = waterway_complete('Raam', "/Users/levente/Documents/Quartile 1/Data Challenge 3/DC3-Group2/data/stuw_order.csv", "/Users/levente/Documents/Quartile 1/Data Challenge 3/DC3-Group2/data/feature_tables/")
+test.to_csv("Raam_waterways.csv")
