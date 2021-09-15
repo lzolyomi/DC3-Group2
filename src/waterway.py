@@ -5,8 +5,8 @@ import pandas as pd
 
 # ----Adjust the variables here
 waterway = 'Leijgraaf'
-path_to_stuw_order = "/Users/Gebruiker/OneDrive - TU Eindhoven/jaar3/DC3/DC3-Group2/data/stuw_order.csv"
-path_to_ft_tables = "/Users/Gebruiker/OneDrive - TU Eindhoven/jaar3/DC3/DC3-Group2/data/feature_tables/"
+path_to_stuw_order = "/Users/rshar/OneDrive - TU Eindhoven/jaar3/DC3/DC3-Group2/data/stuw_order.csv"
+path_to_ft_tables = "/Users/rshar/OneDrive - TU Eindhoven/jaar3/DC3/DC3-Group2/data/feature_tables/"
 
 
 def waterway_summary(waterway: str, path_to_stuw_order: str, path_to_ft_tables: str):
@@ -23,37 +23,34 @@ def waterway_summary(waterway: str, path_to_stuw_order: str, path_to_ft_tables: 
     stuw_order = pd.read_csv(path_to_stuw_order)
 
     waterway_df = stuw_order.loc[stuw_order['WATERLOOP'] == waterway].iloc[::-1]  # select only those rows belonging to the waterway
-    waterway_df.reset_index(inplace=True)
-    waterway_df.drop(['index', 'ORDER'], axis=1)
 
     df = pd.DataFrame()
-    for x in waterway_df.iloc[:, 3]:  # for each department, add it to the dataframe and addthe mean discharge per compartment for now
+    for dep in waterway_df.iloc[:, 2]:  # for each department, add it to the dataframe and add the mean discharge per compartment for now
 
-        vak = pd.read_csv(path_to_ft_tables + f"{x}_feature_table.csv")
-        mean_weir = vak[['Q']].mean()
-        df = df.append({'Weir compartment': x, 'Mean discharge': mean_weir[0]}, ignore_index=True)
+        compartment = pd.read_csv(path_to_ft_tables + f"{dep}_feature_table.csv")
+        mean_weir = compartment[['Q']].mean()
+        df = df.append({'Weir compartment': dep, 'Mean discharge': mean_weir[0]}, ignore_index=True)
 
     return df
 
-def waterway_complete(waterway:str, path_to_stuw_order: str, path_to_ft_tables:str):
+
+def waterway_complete(waterway: str, path_to_stuw_order: str, path_to_ft_tables: str):
     stuw_order = pd.read_csv(path_to_stuw_order)
 
-    waterway_df = stuw_order.loc[stuw_order["WATERLOOP"] == waterway].iloc[::-1] #inverting dataframe
-    waterway_df.reset_index(inplace=True)
-    waterway_df.drop(['index', 'ORDER'], axis=1)
+    waterway_df = stuw_order.loc[stuw_order["WATERLOOP"] == waterway].iloc[::-1]  # inverting dataframe
+
     df_list = []
-    for x in waterway_df.iloc[:, 3]: #x is name of weir compartment
-        compartment = pd.read_csv(path_to_ft_tables + f"{x}_feature_table.csv") #whole feature table
-        df_list.append(pd.DataFrame({"Time":compartment["TIME"], "Weir compartment":compartment["STUWVAK"], "Discharge(Q)": compartment["Q"], "Diff(Verschil)":compartment["VERSCHIL"]}))
+    for dep in waterway_df.iloc[:, 2]:  # dep is name of weir compartment
+        compartment = pd.read_csv(path_to_ft_tables + f"{dep}_feature_table.csv")  # whole feature table
+        df_list.append(pd.DataFrame({"Time": compartment["TIME"], "Weir compartment": compartment["STUWVAK"], "Discharge(Q)": compartment["Q"], "Diff(Verschil)": compartment["VERSCHIL"]}))
     df = pd.concat(df_list)
+
     return df
 
-test = waterway_complete('Raam', "/Users/levente/Documents/Quartile 1/Data Challenge 3/DC3-Group2/data/stuw_order.csv", "/Users/levente/Documents/Quartile 1/Data Challenge 3/DC3-Group2/data/feature_tables/")
-test.to_csv("Raam_waterways.csv")
 
 def main():
-    df_stream = waterway_summary(waterway, path_to_stuw_order, path_to_ft_tables)
-    print(df_stream)
+    df = waterway_complete(waterway, path_to_stuw_order, path_to_ft_tables)
+    df.to_csv(waterway + "_waterway.csv")
 
 
 if __name__ == '__main__':
