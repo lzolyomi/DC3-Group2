@@ -3,10 +3,11 @@ import pandas as pd
 # All waterways: Leijgraaf, Hertogswetering_, Raam, Strijpse Beek_, Osse Aanvoersloot, Peelse Loop_
 # SIDENOTE: the last 3 waterways will give an error since the feature table of 1 or more compartments is not present
 
-#----Adjust the variables here
+# ----Adjust the variables here
 waterway = 'Leijgraaf'
 path_to_stuw_order = "/Users/Gebruiker/OneDrive - TU Eindhoven/jaar3/DC3/DC3-Group2/data/stuw_order.csv"
 path_to_ft_tables = "/Users/Gebruiker/OneDrive - TU Eindhoven/jaar3/DC3/DC3-Group2/data/feature_tables/"
+
 
 def waterway_summary(waterway: str, path_to_stuw_order: str, path_to_ft_tables: str):
     """
@@ -20,9 +21,8 @@ def waterway_summary(waterway: str, path_to_stuw_order: str, path_to_ft_tables: 
     """
 
     stuw_order = pd.read_csv(path_to_stuw_order)
-    stuw_order.head()
 
-    waterway_df = stuw_order.loc[stuw_order['WATERLOOP'] == waterway].iloc[::-1]  #select only those rows belonging to the waterway
+    waterway_df = stuw_order.loc[stuw_order['WATERLOOP'] == waterway].iloc[::-1]  # select only those rows belonging to the waterway
     waterway_df.reset_index(inplace=True)
     waterway_df.drop(['index', 'ORDER'], axis=1)
 
@@ -50,3 +50,11 @@ def waterway_complete(waterway:str, path_to_stuw_order: str, path_to_ft_tables:s
 
 test = waterway_complete('Raam', "/Users/levente/Documents/Quartile 1/Data Challenge 3/DC3-Group2/data/stuw_order.csv", "/Users/levente/Documents/Quartile 1/Data Challenge 3/DC3-Group2/data/feature_tables/")
 test.to_csv("Raam_waterways.csv")
+
+def main():
+    df_stream = waterway_summary(waterway, path_to_stuw_order, path_to_ft_tables)
+    print(df_stream)
+
+
+if __name__ == '__main__':
+    main()
