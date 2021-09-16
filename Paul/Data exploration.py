@@ -1,9 +1,17 @@
 import pandas as pd
 import numpy as np
 import pyreadr
+import sys
+import os
+sys.path.append(os.path.abspath("../src"))
+from waterway import *
+
+waterway = 'Leijgraaf'
+path_to_stuw_order = "../data/stuw_order.csv"
+path_to_ft_tables = "../data/feature_tables/"
 
 df_feature1 = pd.read_csv('../data/feature_tables/103BIB_103BIC_feature_table.csv')
-print(df_feature1)
+# print(df_feature1)
 #
 
 # df_stuw1 = pd.read_csv('../data/stuw_order.csv')
@@ -31,3 +39,8 @@ print(df_feature1)
 # write.csv(df_with_special_characters, "first.csv", row.names=FALSE)
 # first <- read.csv("first.csv")
 # print(first)
+
+print(waterway_summary(waterway, path_to_stuw_order, path_to_ft_tables))
+
+print(waterway_complete(waterway, path_to_stuw_order, path_to_ft_tables))
+
