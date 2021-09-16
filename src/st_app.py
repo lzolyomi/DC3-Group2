@@ -4,7 +4,7 @@ from waterway import waterway_complete
 import plotly.express as px
 from data_prep import return_rain_ts
 #------------------- Variables to be changed BEFORE running the app
-data_path = "/Users/levente/Documents/Quartile 1/Data Challenge 3/DC3-Group2/data/" #path to the data folder
+data_path = "../data/" #path to the data folder
 
 # ------------------ Data preparations
 

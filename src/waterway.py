@@ -3,10 +3,12 @@ import pandas as pd
 # All waterways: Leijgraaf, Hertogswetering_, Raam, Strijpse Beek_, Osse Aanvoersloot, Peelse Loop_
 # SIDENOTE: the last 3 waterways will give an error since the feature table of 1 or more compartments is not present
 
-# ----Adjust the variables here
+# ----Adjust the waterway here
 waterway = 'Leijgraaf'
-path_to_stuw_order = "/Users/rshar/OneDrive - TU Eindhoven/jaar3/DC3/DC3-Group2/data/stuw_order.csv"
-path_to_ft_tables = "/Users/rshar/OneDrive - TU Eindhoven/jaar3/DC3/DC3-Group2/data/feature_tables/"
+
+
+path_to_stuw_order = "../data/stuw_order.csv"
+path_to_ft_tables = "../data/feature_tables/"
 
 
 def waterway_summary(waterway: str, path_to_stuw_order: str, path_to_ft_tables: str):
