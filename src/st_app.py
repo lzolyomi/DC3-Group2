@@ -8,9 +8,11 @@ import platform
 #------------------- Variables to be changed BEFORE running the app
 data_path = locate_data_() #path to the data folder
 
-s = '''/'''
 if platform.system() == 'Windows':  # checks for the system to get the paths right
     s = '''\\'''
+else:
+    s = '''/'''
+
 # ------------------ Data preparations
 
 stuw_order = pd.read_csv(data_path +s+ "stuw_order.csv")
