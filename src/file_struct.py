@@ -23,5 +23,5 @@ def locate_data_(file = None, stored_local=False):
         if file is not None:
             return current_wd + hash_slinging_slasher + file
         else:
-            return current_wd 
+            return current_wd
 
