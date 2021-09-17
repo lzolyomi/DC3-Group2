@@ -11,7 +11,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 #---------------Please adjust variables here or in the command line------------------------------------------------------------
 data_path='/Users/levente/Documents/Quartile 1/Data Challenge 3/DC3-Group2/data/feature_tables/' #(--data_path)
 weir='211VEL_211N' #(--weir)
-risk_date='2018-01-01' # (--risk_date)
+risk_date='2021-06-17' # (--risk_date)
 prediction=True # True for prediction (--prediction)
 last_days=7 # (--last_days) For prediction: Defines how many days the linear model takes into account to predict the next 21 days
 avg_temp=22 # (--avg_temp) For prediction: Average Temperature adjusts the prediction +/- 20%

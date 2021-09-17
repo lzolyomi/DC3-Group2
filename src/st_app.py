@@ -3,22 +3,21 @@ import pandas as pd
 from waterway import waterway_complete
 import plotly.express as px
 from data_prep import return_rain_ts
+from file_struct import locate_data_
 #------------------- Variables to be changed BEFORE running the app
-data_path = "../data/" #path to the data folder
+data_path = locate_data_() #path to the data folder
 
 # ------------------ Data preparations
 
-stuw_order = pd.read_csv(data_path + "stuw_order.csv")
+stuw_order = pd.read_csv(data_path + "/stuw_order.csv")
 streams = stuw_order["WATERLOOP"].unique()
-
 
 # ---------------- Layout of the app
 stream = st.sidebar.selectbox("Select the stream you want to plot", streams) #stores the stream we want to analyze
 
-
 # ----------------- waterway data and plots
 try:
-    df_waterway = waterway_complete(stream, data_path + "stuw_order.csv", data_path + "feature_tables/")
+    df_waterway = waterway_complete(stream, data_path + "/stuw_order.csv", data_path + "/feature_tables/")
     df_waterway["Diff(Verschil)"] = df_waterway["Diff(Verschil)"].apply(lambda x: 0 if x < 0 else x) #cuts negative values
     compartments = df_waterway["Weir compartment"].unique()
 except(FileNotFoundError):
