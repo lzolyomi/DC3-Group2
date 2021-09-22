@@ -9,7 +9,7 @@ import argparse
 pd.options.mode.chained_assignment = None  # default='warn'
 
 #---------------Please adjust variables here or in the command line------------------------------------------------------------
-data_path='/Users/levente/Documents/Quartile 1/Data Challenge 3/DC3-Group2/data/feature_tables/' #(--data_path)
+data_path='/Users/20182463/Desktop/Data challenge 3/data/feature_tables/' #(--data_path)
 weir='211VEL_211N' #(--weir)
 risk_date='2021-06-17' # (--risk_date)
 prediction=True # True for prediction (--prediction)
