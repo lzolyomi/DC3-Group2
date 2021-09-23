@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import numpy as np
+import pandas as pd 
 
 # Change the url here 
 url = "https://veghelsweer.nl/noaa2/maandoverzicht.php?fichier=juli-2021"
@@ -20,6 +21,7 @@ def get_weather_df(data_rows):
     """
     Creates a dataframe from a bs4 set object"""
     indices = [1,2,3,4,5,7]
+    data_dct = {"Day":[], "Temp-min":[], "Temp-max":[], "Temp-avg":[], "Wind":[], "Rain":[]}
     for row in data_rows: 
         formatted = np.array(row.text.split("\n"))
         if len(formatted) > 1:
