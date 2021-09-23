@@ -1,4 +1,5 @@
 import pandas as pd
+from file_struct import locate_data_
 
 # All waterways: Leijgraaf, Hertogswetering_, Raam, Strijpse Beek_, Osse Aanvoersloot, Peelse Loop_
 # SIDENOTE: the last 3 waterways will give an error since the feature table of 1 or more compartments is not present
@@ -6,9 +7,10 @@ import pandas as pd
 # ----Adjust the waterway here
 waterway = 'Leijgraaf'
 
+data_path = locate_data_()
 
-path_to_stuw_order = "../data/stuw_order.csv"
-path_to_ft_tables = "../data/feature_tables/"
+path_to_stuw_order = data_path + "\\stuw_order.csv"
+path_to_ft_tables = data_path +  "\\feature_tables\\"
 
 
 def waterway_summary(waterway: str, path_to_stuw_order: str, path_to_ft_tables: str):
