@@ -1,5 +1,6 @@
 import pandas as pd
 from file_struct import locate_data_
+import platform
 
 # All waterways: Leijgraaf, Hertogswetering_, Raam, Strijpse Beek_, Osse Aanvoersloot, Peelse Loop_
 # SIDENOTE: the last 3 waterways will give an error since the feature table of 1 or more compartments is not present
@@ -7,10 +8,16 @@ from file_struct import locate_data_
 # ----Adjust the waterway here
 waterway = 'Leijgraaf'
 
-data_path = locate_data_()
+data_path = locate_data_()[0]
+print(data_path)
 
-path_to_stuw_order = data_path + "\\stuw_order.csv"
-path_to_ft_tables = data_path +  "\\feature_tables\\"
+if platform.system() == 'Windows':  # checks for the system to get the paths right
+    s = '''\\'''
+else:
+    s = '''/'''
+
+path_to_stuw_order = str(data_path) + s + "stuw_order.csv"
+path_to_ft_tables = str(data_path) +  s + "feature_tables" + s
 
 
 def waterway_summary(waterway: str, path_to_stuw_order: str, path_to_ft_tables: str):

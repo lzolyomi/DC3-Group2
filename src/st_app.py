@@ -6,12 +6,13 @@ from data_prep import return_rain_ts
 from file_struct import locate_data_
 import platform
 #------------------- Variables to be changed BEFORE running the app
-data_path = locate_data_() #path to the data folder
+data_path = locate_data_()[0] #path to the data folder
 
 if platform.system() == 'Windows':  # checks for the system to get the paths right
     s = '''\\'''
 else:
     s = '''/'''
+    
 
 # ------------------ Data preparations
 
