@@ -27,9 +27,9 @@ def winter_data(path_data: str): # path to the rain historic series folder
         
     return return_dict
 
-# def add_dash(string, index):
-#     #adds a dash to a string in position index
-#     return string[:index] + "-" + string[index:]
+def add_dash(string, index):
+    #adds a dash to a string in position index
+    return string[:index] + "-" + string[index:]
 
 # def format_datestring(string):
 #     #accepts a datestring from the rain timeseries and formats it
