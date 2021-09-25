@@ -5,6 +5,63 @@ import plotly.express as px
 from data_prep import return_rain_ts
 from file_struct import locate_data_
 import platform
+import numpy as np
+import scipy
+from scipy import signal
+from scipy.signal import argrelextrema
+pd.options.mode.chained_assignment = None  # default='warn'
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
+def filter_data(df: pd.DataFrame, weir, window_length: int = 101, 
+                polyorder: int = 3, derivative: int = 0, 
+                default: bool = False):    
+    '''takes a dataframe (from the "waterway_complete" function) with at least a
+    "Diff(Verschil)" column and a "Weir compartment" column. It then applies a
+    "Savitzky–Golay" filter to the dataframe. It puts the smoothed out data
+    in a new column named "filtered diff". Window_length must be uneven. 
+    A derivative column of the line can be extracted by setting the derivative to an int above 0
+    Set default to True to not have to give input every time.
+    This returns the old dataframe + the new column.
+    '''
+    # if not default:
+    #     print(df_leij['Weir compartment'].unique())
+    weir = weir
+        
+
+    df_oneweir = df.loc[df['Weir compartment'] == weir]
+    filtered = scipy.signal.savgol_filter(df_oneweir['Diff(Verschil)'],
+                                          window_length = window_length, polyorder = polyorder, 
+                                          deriv=0, delta=1.0, axis=- 1, mode='interp', cval=0.0)
+    
+    filtered_deriv = scipy.signal.savgol_filter(df_oneweir['Diff(Verschil)'],
+                                          window_length = window_length, polyorder = polyorder, 
+                                          deriv=derivative, delta=1.0, axis=- 1, mode='interp', cval=0.0)
+    
+#     print(scipy.signal.savgol_coeffs(window_length, polyorder))
+    df_oneweir['filtered diff'] = filtered
+    
+    if derivative != 0:
+        df_oneweir['derivative order ' + str(derivative)] = filtered_deriv
+
+    
+    
+    return df_oneweir
+
+def plot_filtered(df):
+    '''Takes input of dataframe from filter_data and plots output'''
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    
+    for c in df.columns:
+        if 'Diff' in c:
+            fig.add_trace(go.Scatter(x = df['Time'], y = df[c], name = 'initial data'), secondary_y = False)
+        elif 'filtered' in c:
+            fig.add_trace(go.Scatter(x = df['Time'], y = df[c], name = 'filtered data'), secondary_y = False)
+        elif 'derivative' in c:
+            fig.add_trace(go.Scatter(x = df['Time'], y = df[c], name = 'derivative'), secondary_y = True)
+    fig.update_layout(title = stream + ' Weir compartment '+ df['Weir compartment'].iloc[0], width=1100,height=700)
+    st.plotly_chart(fig, use_container_width=True, width=1100,height=700)
+
 #------------------- Variables to be changed BEFORE running the app
 data_path = locate_data_()[0] #path to the data folder
 
@@ -31,7 +88,7 @@ except(FileNotFoundError):
     st.markdown("# Not all feature tables available for this stream!")
 
 #..... Select function >>>
-func = st.radio("Select function", ["Plots", "Dataframes"], )
+func = st.radio("Select function", ["Plots", "Dataframes", "Mowing Plots"], )
 rain_ts_dict = return_rain_ts(data_path +s+ "rain_historic_timeseries" +s)
 
 if func == "Plots":
@@ -45,6 +102,8 @@ if func == "Plots":
 
     fig2 = px.line(df_waterway, x="Time", y="Diff(Verschil)", color="Weir compartment")
     st.plotly_chart(fig2, use_container_width=True)
+
+
 
 if func == "Dataframes":
     st.write("Stuw order")
@@ -66,3 +125,10 @@ if func == "Dataframes":
     rain_filename = rain_ts_dict[rain_begin_date] #retrieves the filename
     df_rain = pd.read_csv(data_path +s+ "rain_historic_timeseries"+s+ f"{rain_filename}")
     df_rain # display dataframe
+
+
+if func == "Mowing Plots":
+    comp = st.sidebar.selectbox("Select the weir compartment",compartments) #compartment
+    plot_filtered(filter_data(df_waterway, comp, 201, 4, 1))
+        
+
