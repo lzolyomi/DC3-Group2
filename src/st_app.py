@@ -1,20 +1,26 @@
+# >>> Library imports
 import streamlit as st
 import pandas as pd
 from streamlit import config 
-from waterway import waterway_complete
 import plotly.express as px
-from data_prep import return_rain_ts
-from file_struct import locate_data_, map_settings
 import platform
 import numpy as np
 import scipy
 from scipy import signal
 from scipy.signal import argrelextrema
-pd.options.mode.chained_assignment = None  # default='warn'
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 from streamlit_keplergl import keplergl_static
 from keplergl import KeplerGl
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+from sklearn.linear_model import LinearRegression
+
+
+# >>> .py imports
+from data_prep import return_rain_ts
+from file_struct import locate_data_, map_settings
+from waterway import waterway_complete, list_stuwvak
+from baseline import get_winter_data
+
 
 def filter_data(df: pd.DataFrame, weir, window_length: int = 101, 
                 polyorder: int = 3, derivative: int = 0, 
@@ -78,6 +84,8 @@ else:
 stuw_order = pd.read_csv(data_path +s+ "stuw_order.csv")
 streams = stuw_order["WATERLOOP"].unique()
 st.set_page_config(layout="wide")
+pd.options.mode.chained_assignment = None  # default='warn'
+
 
 # ---------------- Layout of the app
 stream = st.sidebar.selectbox("Select the stream you want to plot", streams) #stores the stream we want to analyze
@@ -91,7 +99,7 @@ except(FileNotFoundError):
     st.markdown("# Not all feature tables available for this stream!")
 
 #..... Select function >>>
-func = st.radio("Select function", ["Plots", "Dataframes", "Mowing Plots", "Kepler Maps"], )
+func = st.radio("Select function", ["Plots", "Mowing Plots", "Kepler Maps", "Model"], ) #add 'Dataframes' to access dataframe review
 rain_ts_dict = return_rain_ts(data_path +s+ "rain_historic_timeseries" +s)
 
 if func == "Plots":
@@ -142,6 +150,35 @@ if func == "Kepler Maps":
     config = map_settings()
     map1 = KeplerGl(width = 800, data={"data_1": df_locations}, config = config)
     keplergl_static(map1)
+
+
+if func == "Model":
+    lg_stuwvak = list_stuwvak("Leijgraaf")
+    chosen = st.sidebar.selectbox("Select weir compartment:", lg_stuwvak)
+    df = get_winter_data(chosen)
+    """Using this data for each compartment,
+    a Linear Regression model was fitted."""
+    df #display created dataframe
+    """The daily average tempretature and the precipitation was used as predictor"""
+    with st.echo():
+        dct_coef = {}
+        for comp in lg_stuwvak:
+            #Get winter data for all stuwvak
+            data = get_winter_data(comp)
+            lg = LinearRegression()
+            #fit a linear regression
+            lg.fit(X=data[["Avg temp", "Precipitation"]], y=data["VERSCHIL"])
+            dct_coef[comp] = lg.coef_ #put coefficients in dictionary
+        #reformat data    
+        df_dct = {"Stuwvak":[], "Coef avg temp":[], "Coef precipitation":[]}
+        for key, lst in dct_coef.items():
+            #create new, more concise dataframe
+            df_dct["Stuwvak"].append(key)
+            df_dct["Coef avg temp"].append(lst[0])
+            df_dct["Coef precipitation"].append(lst[1])
+    """Result of code:"""
+    result = pd.DataFrame(df_dct)
+    result
 
 
 

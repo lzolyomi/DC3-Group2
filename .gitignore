@@ -1,5 +1,5 @@
 # *.csv
 **/*.rds
-# data/*.csv
+src/*.csv
 src/__pycache__
 src/.ipynb_checkpoints
