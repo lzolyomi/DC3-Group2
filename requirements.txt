@@ -16,6 +16,7 @@ typing-extensions==3.10.0.0
 uncertainties==3.1.6
 zipp==3.5.0
 pyreadr==0.4.2
-streamlit
-plotly
+streamlit>=0.84.1
+plotly>=5.3.1
 requests
+beautifulsoup4>=4.10.0

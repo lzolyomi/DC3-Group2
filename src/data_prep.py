@@ -13,7 +13,7 @@ def return_rain_ts(path_data):
     
     return return_dict
 
-def winter_data(path_data: str): # path to the rain historic series folder
+def winter_rain(path_data: str): # path to the rain historic series folder
     files = listdir(path_data)
     return_dict = {}
     winter_months = ['10', '11', '12', '01', '02']
@@ -27,32 +27,18 @@ def winter_data(path_data: str): # path to the rain historic series folder
         
     return return_dict
 
+def winter_weather(path_data: str):
+    """
+    Returns a dataframe with only the winter data"""
+    weather_data = pd.read_csv(path_data + "full_weather.csv")
+    winter_months = ['10', '11', '12', '01', '02']
+    weather_data["month"] = weather_data.apply(lambda x: x["Date"].split("-")[1], axis=1)
+    df = weather_data[weather_data["month"].isin(winter_months)]
+    #df.drop("month", axis=1, inplace=True)
+    return df
+
 def add_dash(string, index):
     #adds a dash to a string in position index
     return string[:index] + "-" + string[index:]
 
-# def format_datestring(string):
-#     #accepts a datestring from the rain timeseries and formats it
-#     date_only = add_dash(string, 8).split("-")[0] #removes the hour
-#     date_only = add_dash(date_only, 6) #separate day and month
-#     date_only = add_dash(date_only, 4) #separates month and year
-#     return date_only
 
-# def return_rain_ts(path_data):
-#     """
-#     path_data: the path to the data folder (it assumes the structure is unchanged)
-#     """
-#     files = listdir(path_data)
-#     return_dict = {}
-
-#     for filename in files:
-#         split = filename.split("_")
-#         begin_date = format_datestring(split[3])
-#         end_date = format_datestring(split[4].split('.')[0]) #get rid of csv
-#         return_dict[begin_date] = filename
-    
-#     return return_dict
-# if platform.system() == 'Windows':  # checks for the system to get the paths right
-#     s = '''\\'''
-# else:
-#     s = '''/'''

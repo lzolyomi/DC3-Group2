@@ -8,7 +8,7 @@ import platform
 # ----Adjust the waterway here
 waterway = 'Leijgraaf'
 
-data_path = locate_data_()[0]
+data_path = locate_data_()
 print(data_path)
 
 if platform.system() == 'Windows':  # checks for the system to get the paths right
@@ -56,6 +56,14 @@ def waterway_complete(waterway: str, path_to_stuw_order: str, path_to_ft_tables:
     df = pd.concat(df_list)
     df["Time"] = pd.to_datetime(df["Time"])
     return df
+
+
+def list_stuwvak(stream: str):
+    """
+    Returns a list with all the stuwvak IDs of selected stream"""
+    df_summary = waterway_summary(stream, path_to_stuw_order, path_to_ft_tables)
+    return list(df_summary["Weir compartment"])
+
 
 
 def main():

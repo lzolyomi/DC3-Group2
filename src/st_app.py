@@ -63,7 +63,7 @@ def plot_filtered(df):
     st.plotly_chart(fig, use_container_width=True, width=1100,height=700)
 
 #------------------- Variables to be changed BEFORE running the app
-data_path = locate_data_()[0] #path to the data folder
+data_path = locate_data_() #path to the data folder 
 
 if platform.system() == 'Windows':  # checks for the system to get the paths right
     s = '''\\'''
@@ -72,7 +72,6 @@ else:
     
 
 # ------------------ Data preparations
-
 stuw_order = pd.read_csv(data_path +s+ "stuw_order.csv")
 streams = stuw_order["WATERLOOP"].unique()
 

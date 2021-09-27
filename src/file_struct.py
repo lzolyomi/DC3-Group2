@@ -25,3 +25,10 @@ def locate_data_(file = None, stored_local=False):
         else:
             return current_wd
 
+def correct_slash():
+    """Returns the system specific correct slash"""
+    if platform.system() == 'Windows':
+        s = '''\\'''
+    else:
+        s = "/"
+    return s 
