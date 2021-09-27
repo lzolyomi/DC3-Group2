@@ -1,9 +1,10 @@
 import streamlit as st
-import pandas as pd 
+import pandas as pd
+from streamlit import config 
 from waterway import waterway_complete
 import plotly.express as px
 from data_prep import return_rain_ts
-from file_struct import locate_data_
+from file_struct import locate_data_, map_settings
 import platform
 import numpy as np
 import scipy
@@ -12,6 +13,8 @@ from scipy.signal import argrelextrema
 pd.options.mode.chained_assignment = None  # default='warn'
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from streamlit_keplergl import keplergl_static
+from keplergl import KeplerGl
 
 def filter_data(df: pd.DataFrame, weir, window_length: int = 101, 
                 polyorder: int = 3, derivative: int = 0, 
@@ -74,6 +77,7 @@ else:
 # ------------------ Data preparations
 stuw_order = pd.read_csv(data_path +s+ "stuw_order.csv")
 streams = stuw_order["WATERLOOP"].unique()
+st.set_page_config(layout="wide")
 
 # ---------------- Layout of the app
 stream = st.sidebar.selectbox("Select the stream you want to plot", streams) #stores the stream we want to analyze
@@ -87,7 +91,7 @@ except(FileNotFoundError):
     st.markdown("# Not all feature tables available for this stream!")
 
 #..... Select function >>>
-func = st.radio("Select function", ["Plots", "Dataframes", "Mowing Plots"], )
+func = st.radio("Select function", ["Plots", "Dataframes", "Mowing Plots", "Kepler Maps"], )
 rain_ts_dict = return_rain_ts(data_path +s+ "rain_historic_timeseries" +s)
 
 if func == "Plots":
@@ -130,4 +134,14 @@ if func == "Mowing Plots":
     comp = st.sidebar.selectbox("Select the weir compartment",compartments) #compartment
     plot_filtered(filter_data(df_waterway, comp, 201, 4, 1))
         
+
+if func == "Kepler Maps":
+    st.write("Kepler Maps for all the weirs.")
+    df_locations = pd.read_csv(data_path +s+ "geo_loc_final.csv")
+
+    config = map_settings()
+    map1 = KeplerGl(width = 800, data={"data_1": df_locations}, config = config)
+    keplergl_static(map1)
+
+
 
