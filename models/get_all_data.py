@@ -10,7 +10,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 # ---------------Please adjust variables here or in the command line------------------------------------------------------------
 data_path='../data/feature_tables/' #(--data_path)
 weir='211H_211G' #(--weir)
-risk_date='2019-07-16' # (--risk_date)
+risk_date='2021-07-16' # (--risk_date)
 prediction=True # True for prediction (--prediction)
 last_days=7 # (--last_days) For prediction: Defines how many days the linear model takes into account to predict the next 21 days
 avg_temp=22 # (--avg_temp) For prediction: Average Temperature adjusts the prediction +/- 20%
@@ -168,8 +168,10 @@ def predict_vegetation(weir, last_days, avg_temp, data_path, risk_date):
     data = get_data(weir, data_path, date_format=True)
     data.reset_index(inplace=True)
     # Get the last data points depending on number of last_days
+    data['INDEX'] = data['TIME'].copy()
+    data = data.set_index('INDEX')
+    data = data.loc[:risk_date]
     last_data = data.tail(last_days)
-    #print(last_data)
     # Get last day to calculate
     last_day = datetime.datetime.strptime(risk_date, "%Y-%m-%d")
     # Get dates of the next 21 days
