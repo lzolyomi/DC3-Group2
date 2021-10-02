@@ -160,7 +160,8 @@ if func == "Model":
     a Linear Regression model was fitted."""
     df #display created dataframe
     """The daily average tempretature and the precipitation was used as predictor"""
-    with st.echo():
+    
+    with st.echo(): #Display code in streamlit
         dct_coef = {}
         for comp in lg_stuwvak:
             #Get winter data for all stuwvak
@@ -179,6 +180,11 @@ if func == "Model":
     """Result of code:"""
     result = pd.DataFrame(df_dct)
     result
+    x_coord = st.radio("Pick X axis", ["VERSCHIL", "Precipitation", "Q"])
+    y_coord = st.radio("Pick Y axis", ["VERSCHIL", "Precipitation", "Q"])
+    fig = px.scatter(df, x=x_coord, y=y_coord)
+    st.plotly_chart(fig)
+
 
 
 
