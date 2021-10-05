@@ -1,4 +1,5 @@
 # >>> Library imports
+from pandas.core.tools.datetimes import to_datetime
 import streamlit as st
 import pandas as pd
 from streamlit import config 
@@ -89,12 +90,13 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 # ---------------- Layout of the app
 stream = st.sidebar.selectbox("Select the stream you want to plot", streams) #stores the stream we want to analyze
-
+compartments = pd.read_csv(data_path +s+ "stuw_order.csv")
+compartments = compartments[compartments["WATERLOOP"] == stream]["STUWVAK"].unique()
 # ----------------- waterway data and plots
 try:
     df_waterway = waterway_complete(stream, data_path +s+ "stuw_order.csv", data_path +s+ "feature_tables" +s)
     df_waterway["Diff(Verschil)"] = df_waterway["Diff(Verschil)"].apply(lambda x: 0 if x < 0 else x) #cuts negative values
-    compartments = df_waterway["Weir compartment"].unique()
+
 except(FileNotFoundError):
     st.markdown("# Not all feature tables available for this stream!")
 
@@ -105,7 +107,7 @@ rain_ts_dict = return_rain_ts(data_path +s+ "rain_historic_timeseries" +s)
 if func == "Plots":
 
     st.markdown(" ## Plotting the discharge amount in m3 through time ")
-
+    comp = st.sidebar.selectbox("Select the weir compartment",compartments)
     fig1 = px.line(df_waterway, x="Time", y="Discharge(Q)", color="Weir compartment")
     st.plotly_chart(fig1, use_container_width=True)
 
@@ -113,6 +115,20 @@ if func == "Plots":
 
     fig2 = px.line(df_waterway, x="Time", y="Diff(Verschil)", color="Weir compartment")
     st.plotly_chart(fig2, use_container_width=True)
+
+    st.markdown(" ## Plotting Q and Verschil")
+    df = pd.read_csv(data_path + s + "feature_tables" + s + comp + "_feature_table.csv") #one feature table
+    df["TIME"] = pd.to_datetime(df["TIME"])
+    df["YEAR"] = df.apply(lambda x: x["TIME"].year, axis=1)
+    df["MONTH"] = df.apply(lambda x: x["TIME"].month, axis=1)
+    df
+    col = st.radio("Select the value for color", ["YEAR", "MONTH"])
+    clipneg = st.checkbox("Do you want to clip negative values?")
+    if clipneg == True:
+        df["VERSCHIL"] = df.apply(lambda x: x["VERSCHIL"] if x["VERSCHIL"] > 0 else 0, axis=1)
+        df["Q"] = df.apply(lambda x: x["Q"] if x["Q"] > 0 else 0, axis=1)
+    fig = px.scatter(df, x="Q", y="VERSCHIL", color=col)
+    st.plotly_chart(fig)
 
 
 
@@ -179,11 +195,7 @@ if func == "Model":
             df_dct["Coef precipitation"].append(lst[1])
     """Result of code:"""
     result = pd.DataFrame(df_dct)
-    result
-    x_coord = st.radio("Pick X axis", ["VERSCHIL", "Precipitation", "Q"])
-    y_coord = st.radio("Pick Y axis", ["VERSCHIL", "Precipitation", "Q"])
-    fig = px.scatter(df, x=x_coord, y=y_coord)
-    st.plotly_chart(fig)
+
 
 
 

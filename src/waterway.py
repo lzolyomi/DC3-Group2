@@ -9,7 +9,6 @@ import platform
 waterway = 'Leijgraaf'
 
 data_path = locate_data_()
-print(data_path)
 
 if platform.system() == 'Windows':  # checks for the system to get the paths right
     s = '''\\'''
