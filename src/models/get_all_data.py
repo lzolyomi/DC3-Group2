@@ -5,11 +5,12 @@ import numpy as np
 import pandas as pd
 from sklearn import linear_model
 import plotly.express as px
+from file_struct import locate_data_
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
 # ---------------Please adjust variables here or in the command line------------------------------------------------------------
-data_path='../data/feature_tables/' #(--data_path)
+data_path=locate_data_ #(--data_path)
 weir='211VEL_211N' #(--weir)
 risk_date='2021-07-16' # (--risk_date)
 prediction=True # True for prediction (--prediction)
@@ -177,8 +178,8 @@ def main():
     else:
         calc_vegetation_risk(weir=args.weir, risk_date=args.risk_date, data_path=args.data_path)
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#       main()
 
 if __name__ == '__main__':
     #Creates dataframe with header date and with the predicted vegatation as values
@@ -189,5 +190,5 @@ if __name__ == '__main__':
         df_21 = predict_vegetation(weir, last_days, avg_temp, data_path, risk_date = full_weather['Datum'][i])
         list_21 = df_21.values.tolist()
         df[full_weather['Datum'][i]] = list_21
-    df.to_csv('predictions 211VEL_211N.csv')
-
+    # df.to_csv('predictions 211VEL_211N.csv')
+    df
