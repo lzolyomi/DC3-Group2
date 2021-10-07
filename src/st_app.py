@@ -105,23 +105,26 @@ func = st.radio("Select function", ["Plots", "Mowing Plots", "Kepler Maps", "Mod
 rain_ts_dict = return_rain_ts(data_path +s+ "rain_historic_timeseries" +s)
 
 if func == "Plots":
-
     st.markdown(" ## Plotting the discharge amount in m3 through time ")
+    only_one = st.checkbox("Only plot selected compartment")
     comp = st.sidebar.selectbox("Select the weir compartment",compartments)
-    fig1 = px.line(df_waterway, x="Time", y="Discharge(Q)", color="Weir compartment")
+    df = pd.read_csv(data_path + s + "feature_tables" + s + comp + "_feature_table.csv") #one feature table
+    if only_one:
+        fig1 = px.line(df, x="TIME", y="Q")
+        fig2 = px.line(df, x="TIME", y="VERSCHIL")
+    else:
+        fig1 = px.line(df_waterway, x="Time", y="Discharge(Q)", color="Weir compartment")
+        fig2 = px.line(df_waterway, x="Time", y="Diff(Verschil)", color="Weir compartment")
     st.plotly_chart(fig1, use_container_width=True)
 
     st.markdown(" ## Plotting the difference between weir waterheight through time ")
-
-    fig2 = px.line(df_waterway, x="Time", y="Diff(Verschil)", color="Weir compartment")
     st.plotly_chart(fig2, use_container_width=True)
 
     st.markdown(" ## Plotting Q and Verschil")
-    df = pd.read_csv(data_path + s + "feature_tables" + s + comp + "_feature_table.csv") #one feature table
+    
     df["TIME"] = pd.to_datetime(df["TIME"])
     df["YEAR"] = df.apply(lambda x: x["TIME"].year, axis=1)
     df["MONTH"] = df.apply(lambda x: x["TIME"].month, axis=1)
-    df
     col = st.radio("Select the value for color", ["YEAR", "MONTH"])
     clipneg = st.checkbox("Do you want to clip negative values?")
     if clipneg == True:
