@@ -6,10 +6,12 @@ from datetime import date
 from sklearn import linear_model
 import datetime
 import argparse
+
 pd.options.mode.chained_assignment = None  # default='warn'
 
 #---------------Please adjust variables here or in the command line------------------------------------------------------------
-data_path='../data/feature_tables/' #(--data_path)
+
+data_path='../../data/feature_tables/'
 weir='211VEL_211N' #(--weir)
 risk_date='2019-06-17' # (--risk_date)
 prediction=True # True for prediction (--prediction)
