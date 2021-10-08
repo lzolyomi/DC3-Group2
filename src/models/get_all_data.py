@@ -5,18 +5,17 @@ import numpy as np
 import pandas as pd
 from sklearn import linear_model
 import plotly.express as px
-from file_struct import locate_data_
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
 # ---------------Please adjust variables here or in the command line------------------------------------------------------------
-data_path=locate_data_ #(--data_path)
+data_path='../../data/feature_tables/' #(--data_path)
 weir='211VEL_211N' #(--weir)
 risk_date='2021-07-16' # (--risk_date)
 prediction=True # True for prediction (--prediction)
 last_days=7 # (--last_days) For prediction: Defines how many days the linear model takes into account to predict the next 21 days
 avg_temp=22 # (--avg_temp) For prediction: Average Temperature adjusts the prediction +/- 20%
-full_weather = pd.read_csv('../data/full_weather.csv', header = 0)
+full_weather = pd.read_csv('../../data/full_weather.csv', header = 0)
 full_weather['Datum'] = full_weather['Date']
 full_weather['Date'] = pd.to_datetime(full_weather['Date'])
 full_weather = full_weather.set_index('Date')
