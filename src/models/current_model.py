@@ -11,7 +11,11 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 #---------------Please adjust variables here or in the command line------------------------------------------------------------
 
-data_path='../../data/feature_tables/'
+if os.path.isfile('../data/full_weather.csv'):
+    data_path='../data/feature_tables/'
+else:
+    data_path='../../data/feature_tables/'
+    
 weir='211VEL_211N' #(--weir)
 risk_date='2019-06-17' # (--risk_date)
 prediction=True # True for prediction (--prediction)
@@ -114,7 +118,6 @@ def calc_vegetation_risk(weir,risk_date, data_path):
     risk_date=datetime.datetime.strptime(risk_date, "%Y-%m-%d")
     current_year=risk_date.year
     min_year=current_year - 3
-    print(min_year)
     total_vegetation=[]
     # Get the vegetation for the last three years
     for year in range(min_year,current_year):
@@ -123,14 +126,12 @@ def calc_vegetation_risk(weir,risk_date, data_path):
             model_year =get_model(weir, year=year,data_path=data_path)
         except:
             print('Error,year '+str(year)+' model cannot be created')  
-            print("ads")
             continue
         # Select summer season data from March till end of September
         summer_data = weir_data.loc[str(year)+'-03-01':str(year)+'-09-31']
         # Predict the vegetation for every summer data point based on the winter baseline
         winter_pred = model_year.eval(x=summer_data['Q']) 
         winter_pred=negative_backwater_to_zero(winter_pred)
-        print(winter_pred)
         # Calculate the vegetation by plants: Current back water - predicted back water based on winter
         vegetation_year=summer_data.loc[:,"VERSCHIL"]-winter_pred
         vegetation_year=negative_backwater_to_zero(vegetation_year)
