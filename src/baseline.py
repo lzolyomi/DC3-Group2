@@ -3,9 +3,12 @@ import pandas as pd
 
 from data_prep import winter_weather
 from file_struct import correct_slash, locate_data_
+from waterway import list_stuwvak
 
 d = locate_data_()
 s = correct_slash()
+
+######## All of these functions written by Levi, if in doubt, contact me
 
 def get_winter_data(stuwvak: str):
     """ Returns df with weather and feature table data
@@ -22,3 +25,8 @@ def get_winter_data(stuwvak: str):
     #ready_data['Q'] = ready_data.apply(lambda x: 0 if )
 
     return ready_data
+
+
+
+
+######## End of Levi's functions

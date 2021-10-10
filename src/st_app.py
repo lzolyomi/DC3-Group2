@@ -19,7 +19,7 @@ from sklearn.linear_model import LinearRegression
 # >>> .py imports
 from data_prep import return_rain_ts
 from file_struct import locate_data_, map_settings
-from waterway import waterway_complete, list_stuwvak
+from waterway import waterway_complete, list_stuwvak, get_summary_stats
 from baseline import get_winter_data
 
 
@@ -127,12 +127,24 @@ if func == "Plots":
     df["MONTH"] = df.apply(lambda x: x["TIME"].month, axis=1)
     col = st.radio("Select the value for color", ["YEAR", "MONTH"])
     clipneg = st.checkbox("Do you want to clip negative values?")
+    only_winter = st.checkbox("Only show winter data points")
     if clipneg == True:
         df["VERSCHIL"] = df.apply(lambda x: x["VERSCHIL"] if x["VERSCHIL"] > 0 else 0, axis=1)
         df["Q"] = df.apply(lambda x: x["Q"] if x["Q"] > 0 else 0, axis=1)
+    if only_winter:
+        winter_months = [10, 11, 12, 1, 2]
+        df = df[df["MONTH"].isin(winter_months)]
+    
     fig = px.scatter(df, x="Q", y="VERSCHIL", color=col)
     st.plotly_chart(fig)
 
+    st.markdown("Summary statistics of Leijgraaf stream")
+
+    df_summary = get_summary_stats(True, True)
+    df_summary = df_summary[df_summary["type"] != "negative_values"]
+    fig3 = px.violin(df_summary, x="type", y="value")
+    st.plotly_chart(fig3)
+    
 
 
 if func == "Dataframes":
