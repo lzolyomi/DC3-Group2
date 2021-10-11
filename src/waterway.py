@@ -65,6 +65,43 @@ def list_stuwvak(stream: str):
 
 
 
+def get_summary_stats(for_boxplot:False, for_verschil:True):
+    # Returns a dataframe with summary statistics of Leijgraaf stream
+    compartments = list_stuwvak("Leijgraaf")
+    if for_boxplot:
+        dct_stats = {"Compartment":[i for i in compartments for _ in range(3)], "value":[], "type":[]}
+        dct_i = {1:"mean", 2:"std", 3:"negative_values"}
+    else:
+        dct_stats = {"Stuwvak":compartments, "v_mean":[], "v_std":[], "v_negatives":[], "q_mean":[], "q_std":[], "q_negatives":[]}
+
+    for comp in compartments:
+        df = pd.read_csv(data_path + s + "feature_tables" + s + comp + "_feature_table.csv")
+        if for_boxplot:
+            if for_verschil:
+                stats = df["VERSCHIL"].describe()
+                col = "VERSCHIL"
+            else:
+                stats = df["Q"].describe()
+                col = "Q"
+            for i in range(1,4):
+                if i == 3:
+                    dct_stats["value"].append(df[df[col] <= 0].shape[0])
+                else:
+                    dct_stats["value"].append(stats[i])
+                dct_stats["type"].append(dct_i[i])
+        else:
+            verschil_stats = df["VERSCHIL"].describe()
+            q_stats = df["Q"].describe()
+            dct_stats["v_mean"].append(verschil_stats["mean"])
+            dct_stats["v_std"].append(verschil_stats["std"])
+            dct_stats["v_negatives"].append(df[df["VERSCHIL"] <= 0].shape[0])
+            dct_stats["q_mean"].append(q_stats["mean"])
+            dct_stats["q_std"].append(q_stats["std"])
+            dct_stats["q_negatives"].append(df[df["Q"] <= 0].shape[0])
+    
+    return pd.DataFrame(dct_stats)
+
+
 def main():
     df = waterway_complete(waterway, path_to_stuw_order, path_to_ft_tables)
     df.to_csv(waterway + "_waterway.csv")
