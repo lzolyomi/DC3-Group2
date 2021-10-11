@@ -20,7 +20,7 @@ from sklearn.linear_model import LinearRegression
 from data_prep import return_rain_ts
 from file_struct import locate_data_, map_settings
 from waterway import waterway_complete, list_stuwvak, get_summary_stats
-from baseline import get_winter_data
+from baseline import get_winter_data, add_winter_periods
 
 
 def filter_data(df: pd.DataFrame, weir, window_length: int = 101, 
@@ -89,9 +89,11 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 
 # ---------------- Layout of the app
+func = st.sidebar.radio("Select function", ["Plots", "Mowing Plots", "Kepler Maps", "Model"], ) #add 'Dataframes' to access dataframe review
 stream = st.sidebar.selectbox("Select the stream you want to plot", streams) #stores the stream we want to analyze
 compartments = pd.read_csv(data_path +s+ "stuw_order.csv")
 compartments = compartments[compartments["WATERLOOP"] == stream]["STUWVAK"].unique()
+
 # ----------------- waterway data and plots
 try:
     df_waterway = waterway_complete(stream, data_path +s+ "stuw_order.csv", data_path +s+ "feature_tables" +s)
@@ -101,7 +103,7 @@ except(FileNotFoundError):
     st.markdown("# Not all feature tables available for this stream!")
 
 #..... Select function >>>
-func = st.radio("Select function", ["Plots", "Mowing Plots", "Kepler Maps", "Model"], ) #add 'Dataframes' to access dataframe review
+
 rain_ts_dict = return_rain_ts(data_path +s+ "rain_historic_timeseries" +s)
 
 if func == "Plots":
@@ -112,9 +114,14 @@ if func == "Plots":
     if only_one:
         fig1 = px.line(df, x="TIME", y="Q")
         fig2 = px.line(df, x="TIME", y="VERSCHIL")
+        fig2.add_hline(y=0.05, line_dash='dash', line_color="orange", annotation_text="Accuracy boundary", annotation_position="top left")
+        add_winter_periods(fig2)
+        add_winter_periods(fig1)
     else:
         fig1 = px.line(df_waterway, x="Time", y="Discharge(Q)", color="Weir compartment")
         fig2 = px.line(df_waterway, x="Time", y="Diff(Verschil)", color="Weir compartment")
+        add_winter_periods(fig2)
+        add_winter_periods(fig1)
     st.plotly_chart(fig1, use_container_width=True)
 
     st.markdown(" ## Plotting the difference between weir waterheight through time ")
