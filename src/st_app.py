@@ -178,7 +178,9 @@ if func == "Dataframes":
 
 if func == "Mowing Plots":
     comp = st.sidebar.selectbox("Select the weir compartment",compartments) #compartment
-    plot_filtered(filter_data(df_waterway, comp, 201, 4, 1))
+    wind_len = st.sidebar.number_input("Filter Window Length (Days)", min_value = 3, step = 2)
+    polorder = st.sidebar.number_input("Smoothing Approximation Order", min_value= 1, step=1)
+    plot_filtered(filter_data(df = df_waterway, weir = comp, window_length=wind_len, polyorder=polorder,  derivative = 1, ))
         
 
 if func == "Kepler Maps":
