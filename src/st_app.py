@@ -1,4 +1,5 @@
 # >>> Library imports
+from numpy import core
 from pandas.core.tools.datetimes import to_datetime
 import streamlit as st
 import pandas as pd
@@ -141,9 +142,22 @@ if func == "Plots":
     if only_winter:
         winter_months = [10, 11, 12, 1, 2]
         df = df[df["MONTH"].isin(winter_months)]
+
+    correlation = round(np.corrcoef(df["Q"], df["VERSCHIL"])[0,1], 2)
+    if correlation < -0.5:
+        st.markdown(f"Correlation between Q and Verschil: {correlation}")
+        fig = px.scatter(df, x="Q", y="VERSCHIL", color=col)
+        st.plotly_chart(fig)
+    elif correlation > 0.5:
+        st.markdown(f"Correlation between Q and Verschil: {correlation}")
+        fig = px.scatter(df, x="Q", y="VERSCHIL", color=col)
+        st.plotly_chart(fig)
+    else:
+        st.markdown(f"Correlation of {correlation} is not sufficient")
+        fig = px.scatter(df, x="Q", y="VERSCHIL", color=col)
+        st.plotly_chart(fig)
     
-    fig = px.scatter(df, x="Q", y="VERSCHIL", color=col)
-    st.plotly_chart(fig)
+
 
     st.markdown("Summary statistics of Leijgraaf stream")
 
