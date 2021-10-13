@@ -5,13 +5,13 @@ import streamlit as st
 import pandas as pd
 from streamlit import config 
 import plotly.express as px
+import plotly.graph_objects as go
 import platform
 import numpy as np
 import scipy
 from scipy import signal
 from scipy.signal import argrelextrema
-from streamlit_keplergl import keplergl_static
-from keplergl import KeplerGl
+
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from sklearn.linear_model import LinearRegression
@@ -21,7 +21,11 @@ from sklearn.linear_model import LinearRegression
 from data_prep import return_rain_ts
 from file_struct import locate_data_, map_settings
 from waterway import waterway_complete, list_stuwvak, get_summary_stats
-from baseline import get_winter_data, add_winter_periods
+from baseline import get_winter_data, add_winter_periods, create_corr_barchart
+
+######################################################################################################
+#                               Functions
+######################################################################################################
 
 
 def filter_data(df: pd.DataFrame, weir, window_length: int = 101, 
@@ -73,6 +77,20 @@ def plot_filtered(df):
     fig.update_layout(title = stream + ' Weir compartment '+ df['Weir compartment'].iloc[0], width=1100,height=700)
     st.plotly_chart(fig, use_container_width=True, width=1100,height=700)
 
+
+######################################################################################################
+#                               Start of dashboard
+######################################################################################################
+st.set_page_config(layout="wide")
+
+if float(st.__version__.replace('.', '', 1)) <= 11:
+    # only streamlit 1.0.0 supports columns
+    # this avoids compatibility issues
+    cols = True
+else:
+    cols = False
+    from streamlit_keplergl import keplergl_static
+    from keplergl import KeplerGl
 #------------------- Variables to be changed BEFORE running the app
 data_path = locate_data_() #path to the data folder 
 
@@ -85,7 +103,6 @@ else:
 # ------------------ Data preparations
 stuw_order = pd.read_csv(data_path +s+ "stuw_order.csv")
 streams = stuw_order["WATERLOOP"].unique()
-st.set_page_config(layout="wide")
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
@@ -99,17 +116,20 @@ compartments = compartments[compartments["WATERLOOP"] == stream]["STUWVAK"].uniq
 try:
     df_waterway = waterway_complete(stream, data_path +s+ "stuw_order.csv", data_path +s+ "feature_tables" +s)
     df_waterway["Diff(Verschil)"] = df_waterway["Diff(Verschil)"].apply(lambda x: 0 if x < 0 else x) #cuts negative values
-
 except(FileNotFoundError):
-    st.markdown("# Not all feature tables available for this stream!")
+    st.warning("# Not all feature tables available for this stream!")
 
 #..... Select function >>>
 
 rain_ts_dict = return_rain_ts(data_path +s+ "rain_historic_timeseries" +s)
 
+######################################################################################################
+#                               Start of tab Plots
+######################################################################################################
+
 if func == "Plots":
     st.markdown(" ## Plotting the discharge amount in m3 through time ")
-    only_one = st.checkbox("Only plot selected compartment")
+    only_one = st.checkbox("Only plot selected compartment", value=True)
     comp = st.sidebar.selectbox("Select the weir compartment",compartments)
     df = pd.read_csv(data_path + s + "feature_tables" + s + comp + "_feature_table.csv") #one feature table
     if only_one:
@@ -128,20 +148,57 @@ if func == "Plots":
     st.markdown(" ## Plotting the difference between weir waterheight through time ")
     st.plotly_chart(fig2, use_container_width=True)
 
+    ############################################################
+        #Start of scatter plots and other assisting features
+
+
     st.markdown(" ## Plotting Q and Verschil")
     
     df["TIME"] = pd.to_datetime(df["TIME"])
     df["YEAR"] = df.apply(lambda x: x["TIME"].year, axis=1)
     df["MONTH"] = df.apply(lambda x: x["TIME"].month, axis=1)
-    col = st.radio("Select the value for color", ["YEAR", "MONTH"])
-    clipneg = st.checkbox("Do you want to clip negative values?")
-    only_winter = st.checkbox("Only show winter data points")
+
+    if cols:
+        col1, col2, col3 = st.columns(3)
+        col = col1.radio("Select the value for color", ["YEAR", "MONTH"])
+        clipneg = col2.checkbox("Do you want to clip negative values?")
+        only_winter = col2.checkbox("Only show winter data points")
+    else:
+        col = st.radio("Select the value for color", ["YEAR", "MONTH"])
+        clipneg = st.checkbox("Do you want to clip negative values?")
+        only_winter = st.checkbox("Only show winter data points")
+
+    
     if clipneg == True:
         df["VERSCHIL"] = df.apply(lambda x: x["VERSCHIL"] if x["VERSCHIL"] > 0 else 0, axis=1)
         df["Q"] = df.apply(lambda x: x["Q"] if x["Q"] > 0 else 0, axis=1)
     if only_winter:
         winter_months = [10, 11, 12, 1, 2]
         df = df[df["MONTH"].isin(winter_months)]
+
+
+    fig = px.scatter(df, x="Q", y="VERSCHIL", color=col, width=600)
+    
+    df_barchart = create_corr_barchart(df)
+    fig4 = go.Figure(data=[
+    go.Bar(name="corr", x=df_barchart.year, y=df_barchart.correlation,text="correlation", textposition="auto", textangle=40),
+    go.Bar(name="inaccuracy", x=df_barchart.year, y=df_barchart.ratio_innacurate, text="% inaccurate", textposition="auto", textangle=40)
+    ])
+
+    fig4.update_layout(barmode="group", showlegend=False)
+    
+
+    if cols:
+        col1, col2 = st.columns(2)
+        col1.plotly_chart(fig)
+        col2.plotly_chart(fig4)
+    else:
+        st.plotly_chart(fig)
+        st.plotly_chart(fig4)
+
+
+    #### code for summary stats violin plot replaced to baseline_note.ipynb if needed
+    
 
     correlation = round(np.corrcoef(df["Q"], df["VERSCHIL"])[0,1], 2)
     if correlation < -0.5:
@@ -150,17 +207,10 @@ if func == "Plots":
         st.markdown(f"Correlation between Q and Verschil: {correlation}")
     else:
         st.markdown(f"Correlation of {correlation} is not sufficient")
-    fig = px.scatter(df, x="Q", y="VERSCHIL", color=col)
-    st.plotly_chart(fig)
 
-
-    st.markdown("Summary statistics of Leijgraaf stream")
-
-    df_summary = get_summary_stats(True, True)
-    df_summary = df_summary[df_summary["type"] != "negative_values"]
-    fig3 = px.violin(df_summary, x="type", y="value")
-    st.plotly_chart(fig3)
-    
+######################################################################################################
+#                               Start of tab dataframes(not in use)
+######################################################################################################
 
 
 if func == "Dataframes":
@@ -184,6 +234,10 @@ if func == "Dataframes":
     df_rain = pd.read_csv(data_path +s+ "rain_historic_timeseries"+s+ f"{rain_filename}")
     df_rain # display dataframe
 
+######################################################################################################
+#                               Start of tab Mowing plots
+######################################################################################################
+
 
 if func == "Mowing Plots":
     comp = st.sidebar.selectbox("Select the weir compartment",compartments) #compartment
@@ -196,6 +250,11 @@ if func == "Mowing Plots":
     plot_filtered(filter_data(df = df_waterway, weir = comp, window_length=wind, polyorder=polorder,  derivative = 1))
         
 
+######################################################################################################
+#                               Start of tab kepler maps
+######################################################################################################
+
+
 if func == "Kepler Maps":
     st.write("Kepler Maps for all the weirs.")
     df_locations = pd.read_csv(data_path +s+ "geo_loc_final.csv")
@@ -203,6 +262,10 @@ if func == "Kepler Maps":
     config = map_settings()
     map1 = KeplerGl(width = 800, data={"data_1": df_locations}, config = config)
     keplergl_static(map1)
+
+######################################################################################################
+#                               Start of tab Model (old)
+######################################################################################################
 
 
 if func == "Model":

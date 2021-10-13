@@ -45,6 +45,25 @@ def add_winter_periods(figure):
         figure.add_vrect(x0=pair[0], x1=pair[1], fillcolor="red", opacity=0.2, line_width=0, annotation_text="Winter", annotation_position="top left")
 
 
+def create_corr_barchart(df):
+    """
+    When given a dataframe prepared with data_prep.prep_single_df() 
+    returns a dataframe with values needed for plotting"""
+    dct = {"correlation":[], "year":[], "ratio_innacurate":[]}
+    winter_months = [10, 11, 12, 1, 2]
+    df_winter = df[df["MONTH"].isin(winter_months)]
+    for yr in df_winter["YEAR"].unique():
+        df_yearly = df_winter[df_winter["YEAR"] == yr]
+        corr = df_yearly.Q.corr(df_yearly.VERSCHIL)
+        nr_datapoints = df_yearly.shape[0]
+        inaccuracy = df_yearly[df_yearly["VERSCHIL"] < 0.05].shape[0]/nr_datapoints
+        dct["correlation"].append(corr)
+        dct["year"].append(yr)
+        dct["ratio_innacurate"].append(inaccuracy)
+
+    results = pd.DataFrame(dct)
+    return results
+
 ######## End of Levi's functions
 
 

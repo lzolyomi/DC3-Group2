@@ -1,6 +1,10 @@
 import pandas as pd 
 from os import listdir
 
+from file_struct import locate_data_, correct_slash
+
+d, s = locate_data_(), correct_slash()
+
 def return_rain_ts(path_data):
     files = listdir(path_data)
     return_dict = {}
@@ -42,3 +46,12 @@ def add_dash(string, index):
     return string[:index] + "-" + string[index:]
 
 
+def prep_single_df(comp):
+    """
+    Prepares a feature table to be plotted in Plots"""
+    df = pd.read_csv(d + s + "feature_tables" + s + comp + "_feature_table.csv") #one feature table
+    df["TIME"] = pd.to_datetime(df["TIME"])
+    df["YEAR"] = df.apply(lambda x: x["TIME"].year, axis=1)
+    df["MONTH"] = df.apply(lambda x: x["TIME"].month, axis=1)
+
+    return df
