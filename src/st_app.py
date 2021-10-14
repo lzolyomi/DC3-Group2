@@ -161,7 +161,7 @@ if func == "Plots":
 
     if cols:
         col1, col2, col3 = st.columns(3)
-        col = col1.checkbox("Select to color the months", ["MONTH"])
+        col = col1.radio("Select value for color", ["MONTH", "WINTER"], help="Choose WINTER if you want to see data colored according to which winter season it belongs to")
         clipneg = col2.checkbox("Do you want to clip negative values?")
         only_winter = col2.checkbox("Only show winter data points")
     else:
@@ -180,10 +180,7 @@ if func == "Plots":
     year = st.select_slider("Choose a single year to show:", options=years)
     # Make the dataframe with sliders option data
     new_df = df[df['YEAR']==year]
-    if col ==True:
-        fig = px.scatter(new_df, title="Scatterplot with Q and Verschil", x="Q", y="VERSCHIL", color="MONTH", width=600)
-    else:
-        fig = px.scatter(new_df, title="Scatterplot with Q and Verschil", x="Q", y="VERSCHIL", width=600)
+    fig = px.scatter(new_df, title="Scatterplot with Q and Verschil", x="Q", y="VERSCHIL", color=col, width=600)
 
 
     df_barchart = create_corr_barchart(df)
