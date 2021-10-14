@@ -158,11 +158,11 @@ if func == "Plots":
 
     if cols:
         col1, col2, col3 = st.columns(3)
-        col = col1.radio("Select the value for color", ["YEAR", "MONTH"])
+        col = col1.radio("Select the value for color", ["YEAR", "MONTH", "WINTER"], help="Choose WINTER if you want to see data colored according to which winter season it belongs to")
         clipneg = col2.checkbox("Do you want to clip negative values?")
         only_winter = col2.checkbox("Only show winter data points")
     else:
-        col = st.radio("Select the value for color", ["YEAR", "MONTH"])
+        col = st.radio("Select the value for color", ["YEAR", "MONTH", "WINTER"], help="Choose WINTER if you want to see data colored according to which winter season it belongs to")
         clipneg = st.checkbox("Do you want to clip negative values?")
         only_winter = st.checkbox("Only show winter data points")
 
