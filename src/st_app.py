@@ -165,7 +165,7 @@ if func == "Plots":
         clipneg = col2.checkbox("Do you want to clip negative values?")
         only_winter = col2.checkbox("Only show winter data points")
     else:
-        col = st.checkbox("Select to color the months", ["MONTH"])
+        col = st.radio("Select the value for color", ["MONTH", "WINTER"], help="Choose WINTER if you want to see data colored according to which winter season it belongs to")
         clipneg = st.checkbox("Do you want to clip negative values?")
         only_winter = st.checkbox("Only show winter data points")
 
