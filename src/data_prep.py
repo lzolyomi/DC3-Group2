@@ -53,5 +53,5 @@ def prep_single_df(comp):
     df["TIME"] = pd.to_datetime(df["TIME"])
     df["YEAR"] = df.apply(lambda x: x["TIME"].year, axis=1)
     df["MONTH"] = df.apply(lambda x: x["TIME"].month, axis=1)
-
+    df["WINTER"] = df.apply(lambda x: x["YEAR"] if x["MONTH"] < 7 else x["YEAR"]+1, axis=1)
     return df

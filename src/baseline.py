@@ -1,5 +1,6 @@
 from os import read
 import pandas as pd
+from datetime import datetime
 
 from data_prep import winter_weather
 from file_struct import correct_slash, locate_data_
@@ -27,18 +28,28 @@ def get_winter_data(stuwvak: str):
     return ready_data
 
 
-def winter_dates(start_year=2018):
+def winter_dates(start_year=2018, as_datetime=False):
     """
     From given start_year returns a list of pairs for each winter period, until 2021"""
-    winters = [(f"{start_year}-01-01", f"{start_year}-02-28")]
+    if as_datetime:
+        begin = datetime.strptime(f"{start_year}-01-01", "%Y-%m-%d")
+        end = datetime.strptime(f"{start_year}-02-28", "%Y-%m-%d")
+        winters = [(pd.to_datetime(begin).date(), pd.to_datetime(end).date())]
+    else:
+        winters = [(f"{start_year}-01-01", f"{start_year}-02-28")]
     for year in range(start_year, 2021):
-        winters.append((f"{year}-10-31", f"{year+1}-02-28"))
+        if as_datetime:
+            begin = datetime.strptime(f"{year}-10-31", "%Y-%m-%d")
+            end = datetime.strptime(f"{year+1}-02-28", "%Y-%m-%d")
+            winters.append((begin, end))
+        else:
+            winters.append((f"{year}-10-31", f"{year+1}-02-28"))
     return winters
 
 def add_winter_periods(figure):
     """
     Adds rectangles to show the winter periods to the passed figure object
-    It must be a px.line figure
+    It must be a plotly figure
     """
     winters = winter_dates()
     for pair in winters:
@@ -52,8 +63,8 @@ def create_corr_barchart(df):
     dct = {"correlation":[], "year":[], "ratio_innacurate":[]}
     winter_months = [10, 11, 12, 1, 2]
     df_winter = df[df["MONTH"].isin(winter_months)]
-    for yr in df_winter["YEAR"].unique():
-        df_yearly = df_winter[df_winter["YEAR"] == yr]
+    for yr in df_winter["WINTER"].unique():
+        df_yearly = df_winter[df_winter["WINTER"] == yr]
         corr = df_yearly.Q.corr(df_yearly.VERSCHIL)
         nr_datapoints = df_yearly.shape[0]
         inaccuracy = df_yearly[df_yearly["VERSCHIL"] < 0.05].shape[0]/nr_datapoints

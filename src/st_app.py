@@ -18,7 +18,7 @@ from sklearn.linear_model import LinearRegression
 
 
 # >>> .py imports
-from data_prep import return_rain_ts
+from data_prep import prep_single_df, return_rain_ts
 from file_struct import locate_data_, map_settings
 from waterway import waterway_complete, list_stuwvak, get_summary_stats
 from baseline import get_winter_data, add_winter_periods, create_corr_barchart
@@ -154,9 +154,7 @@ if func == "Plots":
 
     st.markdown(" ## Plotting Q and Verschil")
     
-    df["TIME"] = pd.to_datetime(df["TIME"])
-    df["YEAR"] = df.apply(lambda x: x["TIME"].year, axis=1)
-    df["MONTH"] = df.apply(lambda x: x["TIME"].month, axis=1)
+    df = prep_single_df(comp)
 
     if cols:
         col1, col2, col3 = st.columns(3)
