@@ -155,14 +155,17 @@ if func == "Plots":
     st.markdown(" ## Plotting Q and Verschil")
     
     df = prep_single_df(comp)
+    # add yearly options for slider
+    years = [2018, 2019, 2020, 2021]
+
 
     if cols:
         col1, col2, col3 = st.columns(3)
-        col = col1.radio("Select the value for color", ["YEAR", "MONTH", "WINTER"], help="Choose WINTER if you want to see data colored according to which winter season it belongs to")
+        col = col1.radio("Select value for color", ["MONTH", "WINTER"], help="Choose WINTER if you want to see data colored according to which winter season it belongs to")
         clipneg = col2.checkbox("Do you want to clip negative values?")
         only_winter = col2.checkbox("Only show winter data points")
     else:
-        col = st.radio("Select the value for color", ["YEAR", "MONTH", "WINTER"], help="Choose WINTER if you want to see data colored according to which winter season it belongs to")
+        col = st.radio("Select the value for color", ["MONTH", "WINTER"], help="Choose WINTER if you want to see data colored according to which winter season it belongs to")
         clipneg = st.checkbox("Do you want to clip negative values?")
         only_winter = st.checkbox("Only show winter data points")
 
@@ -174,9 +177,12 @@ if func == "Plots":
         winter_months = [10, 11, 12, 1, 2]
         df = df[df["MONTH"].isin(winter_months)]
 
+    year = st.select_slider("Choose a single year to show:", options=years)
+    # Make the dataframe with sliders option data
+    new_df = df[df['YEAR']==year]
+    fig = px.scatter(new_df, title="Scatterplot with Q and Verschil", x="Q", y="VERSCHIL", color=col, width=600)
 
-    fig = px.scatter(df, x="Q", y="VERSCHIL", color=col, width=600)
-    
+
     df_barchart = create_corr_barchart(df)
     fig4 = go.Figure(data=[
     go.Bar(name="corr", x=df_barchart.year, y=df_barchart.correlation,text="correlation", textposition="auto", textangle=40),
