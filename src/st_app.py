@@ -107,7 +107,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 
 # ---------------- Layout of the app
-func = st.sidebar.radio("Select function", ["Plots", "Mowing Plots", "Kepler Maps", "Model"], ) #add 'Dataframes' to access dataframe review
+func = st.sidebar.radio("Select function", ["Plots", "Mowing Plots", "Kepler Maps"], ) #add 'Dataframes', 'Model' to access further views
 stream = st.sidebar.selectbox("Select the stream you want to plot", streams) #stores the stream we want to analyze
 compartments = pd.read_csv(data_path +s+ "stuw_order.csv")
 compartments = compartments[compartments["WATERLOOP"] == stream]["STUWVAK"].unique()
@@ -164,10 +164,12 @@ if func == "Plots":
         col = col1.radio("Select value for color", ["MONTH", "WINTER"], help="Choose WINTER if you want to see data colored according to which winter season it belongs to")
         clipneg = col2.checkbox("Do you want to clip negative values?")
         only_winter = col2.checkbox("Only show winter data points")
+        year = col3.select_slider("Choose years to show:", options=years, value=(2018, 2021))
     else:
         col = st.radio("Select the value for color", ["MONTH", "WINTER"], help="Choose WINTER if you want to see data colored according to which winter season it belongs to")
         clipneg = st.checkbox("Do you want to clip negative values?")
         only_winter = st.checkbox("Only show winter data points")
+        year = st.select_slider("Choose yeas to show:", options=years, value=(2018, 2021))
 
     
     if clipneg == True:
@@ -177,9 +179,8 @@ if func == "Plots":
         winter_months = [10, 11, 12, 1, 2]
         df = df[df["MONTH"].isin(winter_months)]
 
-    year = st.select_slider("Choose a single year to show:", options=years)
     # Make the dataframe with sliders option data
-    new_df = df[df['YEAR']==year]
+    new_df = df[df['WINTER'].between(year[0], year[1], "both")]
     fig = px.scatter(new_df, title="Scatterplot with Q and Verschil", x="Q", y="VERSCHIL", color=col, width=600)
 
 
